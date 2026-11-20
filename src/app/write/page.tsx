@@ -9,36 +9,43 @@ import { IconButton } from "@/components/icon-button";
 import { IconChevronLeft } from "@/components/icons";
 import { InputField } from "@/components/input-field";
 import { LabelDot } from "@/components/label-dot";
-import type { MemoLabel } from "@/components/memo-item";
-import { saveMemo } from "@/lib/memo-storage";
+import { domToBlocks } from "@/lib/memo-content";
+import { createMemo, type MemoColor } from "@/lib/memos";
 
 const categories = ["업무", "개인", "아이디어"];
 
-const colors: { color: MemoLabel; name: string }[] = [
+const colors: { color: MemoColor; name: string }[] = [
   { color: "blue", name: "파랑" },
   { color: "green", name: "초록" },
   { color: "orange", name: "주황" },
   { color: "pink", name: "분홍" },
 ];
 
-const packingList = ["물 두 병", "간식과 바람막이", "보조 배터리"];
-
 export default function Write() {
   const router = useRouter();
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [title, setTitle] = useState("주말 등산 준비");
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("개인");
-  const [color, setColor] = useState<MemoLabel>("green");
+  const [color, setColor] = useState<MemoColor>("green");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  // 로컬스토리지에 저장하고 홈으로 간다.
-  function handleSave() {
-    saveMemo({
-      title: title.trim() || "제목 없음",
-      body: bodyRef.current?.innerText ?? "",
-      category,
-      color,
-    });
-    router.push("/");
+  // Supabase에 저장하고 홈으로 간다.
+  async function handleSave() {
+    const content = bodyRef.current ? domToBlocks(bodyRef.current) : [];
+    if (!title.trim() && content.length === 0) {
+      setError("제목이나 내용을 입력해 주세요.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await createMemo({ title: title.trim() || "제목 없음", content, category, color });
+      router.push("/");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "저장하지 못했어요.");
+      setSaving(false);
+    }
   }
 
   return (
@@ -47,7 +54,6 @@ export default function Write() {
         <IconButton label="뒤로가기" href="/">
           <IconChevronLeft />
         </IconButton>
-        <p className="text-caption-sm whitespace-nowrap text-text-muted">자동 저장됨</p>
       </nav>
 
       <main className="flex flex-1 flex-col gap-space-12">
@@ -92,7 +98,7 @@ export default function Write() {
             <ButtonFormat label="목록" />
           </div>
           <hr className="h-px border-0 bg-border-default" />
-          {/* 본문: 직접 고쳐 쓸 수 있고, 저장할 때 글자만 가져간다. */}
+          {/* 본문: 직접 쓰면 저장할 때 문단으로 바뀐다. */}
           <div
             ref={bodyRef}
             contentEditable
@@ -100,30 +106,21 @@ export default function Write() {
             role="textbox"
             aria-multiline="true"
             aria-label="본문"
-            className="flex flex-col gap-space-8 px-space-20 py-space-16 outline-none"
-          >
-            <h2 className="text-title-lg text-text-primary">준비물</h2>
-            <ul className="flex flex-col gap-space-4">
-              {packingList.map((item) => (
-                <li
-                  key={item}
-                  className="flex gap-space-8 text-body-md text-text-secondary before:content-['•']"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <h3 className="text-title-md text-text-primary">출발</h3>
-            <p className="text-body-md text-text-secondary">
-              <strong className="font-bold text-text-primary">토요일 오전 7시</strong>에 집 앞에서
-              출발한다.
-            </p>
-          </div>
+            data-placeholder="내용을 입력하세요"
+            className="min-h-40 px-space-20 py-space-16 text-body-md text-text-secondary outline-none empty:before:text-text-muted empty:before:content-[attr(data-placeholder)]"
+          />
         </section>
       </main>
 
-      <div className="sticky bottom-space-34">
-        <ButtonPrimary onClick={handleSave}>저장하기</ButtonPrimary>
+      <div className="sticky bottom-space-34 flex flex-col gap-space-8">
+        {error && (
+          <p role="alert" className="px-space-8 text-caption-sm text-text-secondary">
+            {error}
+          </p>
+        )}
+        <ButtonPrimary onClick={handleSave} disabled={saving}>
+          {saving ? "저장하는 중…" : "저장하기"}
+        </ButtonPrimary>
       </div>
     </div>
   );

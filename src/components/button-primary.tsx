@@ -8,12 +8,13 @@ type ButtonPrimaryProps = {
   icon?: boolean;
   href?: string; // 있으면 다른 화면으로 가는 링크가 된다
   onClick?: () => void;
+  disabled?: boolean; // 저장 중처럼 잠시 누를 수 없을 때
 };
 
 const className =
   "flex h-14 w-full items-center justify-center gap-space-8 rounded-md bg-primary px-space-24 text-button-md whitespace-nowrap text-text-on-primary";
 
-export function ButtonPrimary({ children, icon = false, href, onClick }: ButtonPrimaryProps) {
+export function ButtonPrimary({ children, icon = false, href, onClick, disabled }: ButtonPrimaryProps) {
   const content = (
     <>
       {icon && <IconPlus className="size-5" />}
@@ -28,7 +29,12 @@ export function ButtonPrimary({ children, icon = false, href, onClick }: ButtonP
     );
   }
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`${className} disabled:opacity-60`}
+    >
       {content}
     </button>
   );

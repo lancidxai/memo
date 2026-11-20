@@ -1,13 +1,14 @@
 import { CardHeader } from "./card-header";
 import { MemoItem, type MemoLabel } from "./memo-item";
 
-export type Memo = {
-  id?: string;
+// 카드에 보이는 메모 한 줄의 정보
+export type MemoCardItem = {
+  id: string;
   title: string;
   preview: string;
   date: string;
   label: MemoLabel;
-  href?: string;
+  href: string;
 };
 
 // 홈의 메모 카드: 머리글 + 메모 줄 목록
@@ -18,7 +19,7 @@ export function MemoCard({
   action,
 }: {
   title: string;
-  memos: Memo[];
+  memos: MemoCardItem[];
   pin?: boolean;
   action?: boolean;
 }) {
@@ -27,7 +28,7 @@ export function MemoCard({
       <CardHeader title={title} pin={pin} action={action} />
       <ul>
         {memos.map(({ id, ...memo }) => (
-          <li key={id ?? memo.title}>
+          <li key={id}>
             <MemoItem {...memo} />
           </li>
         ))}
