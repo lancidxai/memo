@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>과일 메모리 게임</title>
+<style>
+  :root {
+    --accent: #ff6b4a;
+    --accent-dark: #e5522f;
+    --accent-soft: #fff0ec;
+    --text: #25222e;
+    --muted: #7b7788;
+    --bg: #fbfaf8;
+    --line: #ece9e4;
+    --good: #2fb673;
+    --bad: #e5484d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  .app { width: 100%; max-width: 560px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  h1 { font-size: 26px; letter-spacing: -0.02em; }
+  .icon-btn {
+    border: 1px solid var(--line); background: #fff; border-radius: 12px;
+    font-size: 20px; width: 44px; height: 44px; cursor: pointer;
+  }
+  .hud { display: flex; gap: 12px; margin-bottom: 20px; }
+  .stat {
+    flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 12px 16px; position: relative;
+  }
+  .stat .label { font-size: 13px; color: var(--muted); }
+  .stat .value { font-size: 28px; font-weight: 800; }
+  .stat .value.score { color: var(--accent); }
+  .delta {
+    position: absolute; right: 16px; top: 12px; font-weight: 800; font-size: 18px;
+    opacity: 0; pointer-events: none;
+  }
+  .delta.show { animation: floatUp .9s ease-out; }
+  .delta.plus { color: var(--good); }
+  .delta.minus { color: var(--bad); }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(8px); }
+    100% { opacity: 0; transform: translateY(-14px); }
+  }
+
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; perspective: 1000px; }
+  .card {
+    aspect-ratio: 1; border: none; background: none; padding: 0; cursor: pointer;
+    position: relative; transform-style: preserve-3d; transition: transform .45s;
+  }
+  .card.flipped, .card.matched { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    border-radius: 16px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .back {
+    background: linear-gradient(135deg, var(--accent) 0%, #ff9a6b 100%);
+    color: rgba(255,255,255,.85); font-size: 28px;
+    box-shadow: 0 2px 6px rgba(255,107,74,.25);
+  }
+  .front {
+    background: #fff; border: 2px solid var(--line);
+    font-size: clamp(30px, 9vw, 46px); transform: rotateY(180deg);
+  }
+  .card.matched .front { border-color: var(--good); background: #effaf4; }
+  .card.matched { animation: pop .6s ease .35s; }
+  .card.matched .front::after {
+    content: "✨"; position: absolute; top: 2px; right: 6px; font-size: 16px;
+    animation: sparkle 1s ease .4s both;
+  }
+  @keyframes pop {
+    0%, 100% { transform: rotateY(180deg) scale(1); }
+    40% { transform: rotateY(180deg) scale(1.15); }
+  }
+  @keyframes sparkle {
+    0% { opacity: 0; transform: scale(0.3) rotate(0); }
+    50% { opacity: 1; transform: scale(1.3) rotate(25deg); }
+    100% { opacity: 0; transform: scale(1) rotate(50deg); }
+  }
+  .card.wrong { animation: shake .45s ease; }
+  .card.wrong .front { border-color: var(--bad); background: #fdf0f0; }
+  @keyframes shake {
+    0%, 100% { transform: rotateY(180deg) translateX(0); }
+    25% { transform: rotateY(180deg) translateX(-6px); }
+    75% { transform: rotateY(180deg) translateX(6px); }
+  }
+  .card.locked { cursor: default; }
+
+  .overlay {
+    position: fixed; inset: 0; background: rgba(37,34,46,.55);
+    display: none; align-items: center; justify-content: center; padding: 24px; z-index: 10;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 24px; padding: 40px 32px; text-align: center;
+    max-width: 360px; width: 100%;
+  }
+  .modal .emoji { font-size: 56px; margin-bottom: 12px; }
+  .modal h2 { font-size: 26px; margin-bottom: 8px; }
+  .modal p { color: var(--muted); margin-bottom: 28px; }
+  .btn {
+    border: none; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700;
+    padding: 14px 36px; border-radius: 999px; cursor: pointer; transition: background .2s;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .restart { margin-top: 20px; width: 100%; background: #fff; color: var(--text); border: 1px solid var(--line); }
+  .restart:hover { background: var(--accent-soft); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🍓 과일 메모리</h1>
+    <button class="icon-btn" id="mute" title="효과음 켜기/끄기">🔊</button>
+  </header>
+
+  <div class="hud">
+    <div class="stat">
+      <div class="label">점수</div>
+      <div class="value score" id="score">50</div>
+      <div class="delta" id="delta"></div>
+    </div>
+    <div class="stat">
+      <div class="label">찾은 쌍</div>
+      <div class="value" id="pairs">0 / 8</div>
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+  <button class="btn restart" id="restart">다시하기</button>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="emoji" id="m-emoji"></div>
+    <h2 id="m-title"></h2>
+    <p id="m-text"></p>
+    <button class="btn" id="m-btn">다시하기</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const FRUITS = ['🍎','🍌','🍇','🍓','🍊','🍉','🍍','🥝'];
+  const TOTAL_PAIRS = FRUITS.length;
+  const START_SCORE = 50, GAIN = 10, LOSS = 10;
+
+  const boardEl = document.getElementById('board');
+  const scoreEl = document.getElementById('score');
+  const pairsEl = document.getElementById('pairs');
+  const deltaEl = document.getElementById('delta');
+  const overlay = document.getElementById('overlay');
+  const muteBtn = document.getElementById('mute');
+
+  let score, pairs, first, busy, over, muted = false;
+
+  /* ---------- 효과음 (Web Audio API 합성) ---------- */
+  let ctx = null;
+  function audio() {
+    if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, start, dur, type = 'sine', vol = 0.18, endFreq) {
+    const c = audio(); if (!c || muted) return;
+    const t = c.currentTime + start;
+    const osc = c.createOscillator(), gain = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain).connect(c.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+  const sfx = {
+    flip:  () => tone(520, 0, 0.07, 'triangle', 0.15, 760),
+    match: () => { tone(660, 0, 0.14, 'sine'); tone(990, 0.12, 0.22, 'sine'); },
+    miss:  () => tone(220, 0, 0.35, 'sawtooth', 0.12, 110),
+    win:   () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.13, 0.3, 'triangle', 0.18)),
+    lose:  () => [392, 330, 262, 196].forEach((f, i) => tone(f, i * 0.28, 0.4, 'sawtooth', 0.12))
+  };
+
+  /* ---------- 게임 로직 ---------- */
+  function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function setScore(n) { score = Math.max(0, n); scoreEl.textContent = score; }
+  function showDelta(d) {
+    deltaEl.textContent = (d > 0 ? '+' : '') + d;
+    deltaEl.className = 'delta ' + (d > 0 ? 'plus' : 'minus');
+    void deltaEl.offsetWidth;
+    deltaEl.classList.add('show');
+  }
+
+  function start() {
+    overlay.classList.remove('show');
+    setScore(START_SCORE);
+    pairs = 0; first = null; busy = false; over = false;
+    pairsEl.textContent = '0 / ' + TOTAL_PAIRS;
+    boardEl.innerHTML = '';
+    shuffle([...FRUITS, ...FRUITS]).forEach(f => {
+      const card = document.createElement('button');
+      card.className = 'card';
+      card.dataset.fruit = f;
+      card.innerHTML = '<div class="face back">?</div><div class="face front">' + f + '</div>';
+      card.addEventListener('click', () => onCard(card));
+      boardEl.appendChild(card);
+    });
+  }
+
+  function onCard(card) {
+    audio();
+    if (busy || over || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+    card.classList.add('flipped');
+    sfx.flip();
+    if (!first) { first = card; return; }
+
+    const a = first, b = card;
+    first = null; busy = true;
+    if (a.dataset.fruit === b.dataset.fruit) {
+      setTimeout(() => {
+        [a, b].forEach(c => { c.classList.remove('flipped'); c.classList.add('matched'); });
+        sfx.match();
+        setScore(score + GAIN); showDelta(GAIN);
+        pairs++; pairsEl.textContent = pairs + ' / ' + TOTAL_PAIRS;
+        busy = false;
+        if (pairs === TOTAL_PAIRS) finish(true);
+      }, 350);
+    } else {
+      setTimeout(() => {
+        [a, b].forEach(c => c.classList.add('wrong'));
+        sfx.miss();
+        setScore(score - LOSS); showDelta(-LOSS);
+        if (score <= 0) { over = true; setTimeout(() => finish(false), 700); }
+      }, 400);
+      setTimeout(() => {
+        [a, b].forEach(c => c.classList.remove('flipped', 'wrong'));
+        busy = false;
+      }, 1000);
+    }
+  }
+
+  function finish(win) {
+    over = true;
+    document.getElementById('m-emoji').textContent = win ? '🎉' : '💀';
+    document.getElementById('m-title').textContent = win ? '클리어!' : '게임 오버';
+    document.getElementById('m-text').textContent = win
+      ? '모든 과일을 찾았어요. 최종 점수 ' + score + '점'
+      : '점수가 0점이 되었어요. 다시 도전해 보세요!';
+    overlay.classList.add('show');
+    win ? sfx.win() : sfx.lose();
+  }
+
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+    if (!muted) audio();
+  });
+  document.getElementById('restart').addEventListener('click', start);
+  document.getElementById('m-btn').addEventListener('click', start);
+
+  start();
+})();
+</script>
+</body>
+</html>

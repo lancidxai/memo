@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumo — 생각보다 빠른 AI 메모 앱</title>
+<style>
+  :root {
+    --accent: #0a43e0;
+    --accent-dark: #0833b3;
+    --accent-soft: #e8eeff;
+    --text: #14110f;
+    --muted: #5f5b58;
+    --bg: #ffffff;
+    --card: #f4f3f2;
+    --dark: #130e0c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+  }
+  .container { max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+
+  .btn {
+    display: inline-block;
+    padding: 16px 40px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 999px;
+    transition: background .2s, transform .2s;
+  }
+  .btn:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    padding: 140px 0 120px;
+    color: #fff;
+    background:
+      radial-gradient(ellipse at 72% 28%, rgba(176, 128, 96, .55) 0%, rgba(176, 128, 96, 0) 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(10, 67, 224, .18) 0%, rgba(10, 67, 224, 0) 50%),
+      linear-gradient(180deg, #3b2a22 0%, #20150f 60%, #130e0c 100%);
+  }
+  .hero .container { width: 100%; }
+  .hero .name {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, .85);
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-size: 64px;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .hero p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, .88);
+    max-width: 520px;
+    margin: 0 auto 40px;
+  }
+
+  /* Features */
+  .features { padding: 120px 0; }
+  .features h2, .cta h2 {
+    text-align: center;
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 64px;
+  }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .card {
+    padding: 40px 32px;
+    border-radius: 28px;
+    background: var(--card);
+  }
+  .card .icon {
+    width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    background: var(--accent-soft);
+    border-radius: 18px;
+    margin-bottom: 24px;
+  }
+  .card h3 { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+  .card p { color: var(--muted); font-size: 16px; }
+
+  /* Bottom CTA */
+  .cta {
+    text-align: center;
+    padding: 120px 0;
+    color: #fff;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(176, 128, 96, .35) 0%, rgba(176, 128, 96, 0) 60%),
+      linear-gradient(180deg, #2a1d16 0%, #130e0c 100%);
+  }
+  .cta h2 { margin-bottom: 40px; }
+
+  footer {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, .55);
+    background: var(--dark);
+  }
+
+  @media (max-width: 760px) {
+    .container { padding: 0 24px; }
+    .hero { min-height: 80vh; padding: 100px 0 90px; }
+    .hero h1 { font-size: 38px; }
+    .hero p { font-size: 16px; }
+    .features, .cta { padding: 80px 0; }
+    .features h2, .cta h2 { font-size: 28px; margin-bottom: 40px; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="container">
+    <div class="name">Lumo</div>
+    <h1>생각보다 빠른<br>AI 메모 앱</h1>
+    <p>떠오른 생각을 적는 순간, 정리와 요약은 Lumo가 끝냅니다. 메모에 쓰는 시간은 줄이고, 생각에 쓰는 시간은 늘려 보세요.</p>
+    <a href="#" class="btn">무료로 시작하기</a>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2>Lumo가 다른 이유</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>즉시 기록</h3>
+        <p>앱을 열면 바로 입력 상태가 됩니다.<br>떠오른 생각을 놓치지 않고 담아요.</p>
+      </div>
+      <div class="card">
+        <div class="icon">✨</div>
+        <h3>AI 자동 정리</h3>
+        <p>긴 메모도 핵심만 골라 요약하고<br>알맞은 제목과 태그를 붙여 드려요.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔍</div>
+        <h3>똑똑한 검색</h3>
+        <p>기억나는 단어 하나면 충분합니다.<br>의미가 비슷한 메모까지 찾아 줘요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container">
+    <h2>지금 첫 메모를 남겨 보세요</h2>
+    <a href="#" class="btn">무료로 시작하기</a>
+  </div>
+</section>
+
+<footer>© 2026 Lumo. All rights reserved.</footer>
+
+</body>
+</html>

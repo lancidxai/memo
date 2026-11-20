@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>메모 홈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --surface-page: #f2f4f6;
+      --surface-card: #ffffff;
+      --color-primary: #3182f6;
+      --text-primary: #191f28;
+      --text-secondary: #4e5968;
+      --text-muted: #8b95a1;
+      --text-on-primary: #ffffff;
+      --label-blue-soft: #e8f3ff;
+
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-20: 20px;
+      --space-24: 24px;
+      --space-34: 34px;
+      --space-64: 64px;
+
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #e5e8eb;
+      font-family: "Noto Sans KR", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 390 x 844 */
+    .screen {
+      width: 100%;
+      max-width: 390px;
+      height: 844px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+      padding: var(--space-64) var(--space-16) var(--space-34);
+      background: var(--surface-page);
+      overflow: hidden;
+    }
+    @media (max-width: 430px) {
+      body { background: var(--surface-page); }
+      .screen { height: 100dvh; min-height: 640px; }
+    }
+
+    .main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+      overflow: hidden;
+    }
+
+    .header { padding: 0 var(--space-8); }
+    .title {
+      font-size: 28px;
+      line-height: 38px;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+      color: var(--text-primary);
+    }
+
+    .memos {
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-8) 0;
+      background: var(--surface-card);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .memo-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      height: 72px;
+      padding: var(--space-12) var(--space-20);
+      color: inherit;
+      text-decoration: none;
+    }
+    .tile {
+      flex: none;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--label-blue-soft);
+      border-radius: var(--radius-sm);
+    }
+    .tile img { width: 22px; height: 22px; display: block; }
+    .content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .memo-title {
+      font-size: 17px;
+      line-height: 24px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+    .memo-preview {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      letter-spacing: -0.1px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .memo-date {
+      flex: none;
+      font-size: 13px;
+      line-height: 18px;
+      font-weight: 500;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      flex: none;
+      width: 100%;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-8);
+      padding: 0 var(--space-24);
+      border: 0;
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: var(--text-on-primary);
+      font-family: inherit;
+      font-size: 17px;
+      line-height: 24px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .btn-primary img { width: 20px; height: 20px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <main class="main">
+      <header class="header">
+        <h1 class="title">오늘까지 메모를<br>3개 남겼어요</h1>
+      </header>
+
+      <section class="memos">
+        <a class="memo-item" href="#">
+          <span class="tile"><img src="assets/icon-note.svg" alt=""></span>
+          <span class="content">
+            <span class="memo-title">장보기 목록</span>
+            <span class="memo-preview">우유, 계란, 사과, 커피 원두</span>
+          </span>
+          <span class="memo-date">오늘</span>
+        </a>
+      </section>
+    </main>
+
+    <button class="btn-primary" type="button">
+      <img src="assets/icon-plus.svg" alt="">
+      <span>새 메모 쓰기</span>
+    </button>
+  </div>
+</body>
+</html>
